@@ -35,9 +35,11 @@ class MyPlayerBrain(object):
         self.avatar = avatar
 
     def Setup(self, map, me, hotelChains, players):
+        print "in setup----------------------------------"
         pass #any setup code...
 
     def QuerySpecialPowersBeforeTurn(self, map, me, hotelChains, players):
+        print "in QuerySpecialPowersBeforeTurn -----------------------------"
         if rand.randint(0, 29) == 1:
             return SpecialPowers.DRAW_5_TILES
         if rand.randint(0, 29) == 1:
@@ -45,6 +47,7 @@ class MyPlayerBrain(object):
         return SpecialPowers.NONE
 
     def QueryTileOnly(self, map, me, hotelChains, players):
+        print "in QueryTileOnly--------------------------------"
         tile = random_element(me.tiles)
         createdHotel = next((hotel for hotel in hotelChains if not hotel.is_active), None)
         mergeSurvivor = next((hotel for hotel in hotelChains if hotel.is_active), None)
@@ -52,6 +55,8 @@ class MyPlayerBrain(object):
 
 
     def QueryTileAndPurchase(self, map, me, hotelChains, players):
+        print "in QueryTileAndPurchase--------------------------------"
+        #print map
         inactive = next((hotel for hotel in hotelChains if not hotel.is_active), None)
         turn = PlayerTurn(tile=random_element(me.tiles), created_hotel=inactive, merge_survivor=inactive)
         turn.Buy.append(lib.HotelStock(random_element(hotelChains), rand.randint(1, 3)))
@@ -74,6 +79,7 @@ class MyPlayerBrain(object):
                 return turn
 
     def QueryMergeStock(self, map, me, hotelChains, players, survivor, defunct):
+        print "in QueryMergeStock----------------------------------------"
         myStock = next((stock for stock in me.stock if stock.chain == defunct.name), None)
         return PlayerMerge(myStock.num_shares / 3, myStock.num_shares / 3, (myStock.num_shares + 2) / 3)
 

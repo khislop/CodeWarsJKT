@@ -16,13 +16,21 @@ def CheckTile(tile, map):
     
     left = right = down = up = None
     if tile.x - 1 >= 0:
-        left = map.tiles[tile.x - 1][tile.y].hotel
+        left = map.tiles[tile.x - 1][tile.y].type
+        if left == '2':
+            left = map.tiles[tile.x - 1][tile.y].hotel
     if tile.y - 1 >= 0:
-        down = map.tiles[tile.x][tile.y - 1].hotel
+        down = map.tiles[tile.x][tile.y - 1].type
+        if down == '2':
+            down = map.tiles[tile.x][tile.y - 1].hotel
     if tile.x + 1 < map.width:
-        right = map.tiles[tile.x + 1][tile.y].hotel
+        right = map.tiles[tile.x + 1][tile.y].type
+        if right == '2':
+            right = map.tiles[tile.x + 1][tile.y].hotel
     if tile.y + 1 < map.height:
-        up = map.tiles[tile.x][tile.y + 1].hotel
+        up = map.tiles[tile.x][tile.y + 1].type
+        if up == '2':
+            up = map.tiles[tile.x][tile.y + 1].hotel
     return [left,right,down,up]
 
 def MergeOwn(tiles, map, name):
@@ -33,9 +41,15 @@ def MergeOwn(tiles, map, name):
         unique_hotels = []
         count = 0
         for hotel in tile_hotels:
-            if hotel != None:
-                if hotel not in unique_hotels:
-                    unique_hotels.append(hotel)
+            if hotel != '1':
+                if hotel != '3':
+                    if hotel != '4':
+                        if hotel != '5':
+                            if hotel != None:
+                                if hotel not in unique_hotels:
+                                    print hotel
+                                    unique_hotels.append(hotel)
+
         for hotel in unique_hotels:
             #print "OWNER BELOW---------------------------------"
             #print hotel.name
@@ -51,15 +65,27 @@ def MergeBigger(tiles, map, name):
     for tile in tiles:
         tile_hotels = CheckTile(tile, map)
         unique_hotels = []
+        max_hotel = None
         for hotel in tile_hotels:
-            if hotel != None:
-                if hotel not in unique_hotels:
-                    unique_hotels.append(hotel)
+            if hotel != '1':
+                if hotel != '3':
+                    if hotel != '4':
+                        if hotel != '5':
+                            if hotel != None:
+                                if hotel not in unique_hotels:
+                                    unique_hotels.append(hotel)
         for hotel in unique_hotels:
-            for owner in hotel.owners:
-                if name is owner.num_shares:
-        
+            if max_hotel == None:
+                max_hotel = hotel
+            if hotel.num_tiles >= max_hotel.num_tiles:
+                max_hotel = hotel
+        if max_hotel != None:
+            for owner in max_hotel.owners:
+                if owner.num_shares is name:
+                    return tile
+    return None
 
+def CreateChain(tiles, map):
     return None
 
 def random_element(list):
@@ -73,6 +99,11 @@ def SelectTile(tiles, map, name):
     if tile != None:
         return tile
     tile = MergeBigger(tiles, map, name)
+    if tile != None:
+        return tile
+    tile = CreateChain(tiles, map)
+    if tile != None:
+        return tile
     return random_element(tiles)
 
 

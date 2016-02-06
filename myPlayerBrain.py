@@ -86,6 +86,56 @@ def MergeBigger(tiles, map, name):
     return None
 
 def CreateChain(tiles, map):
+    for tile in tiles:
+        tile_hotels = CheckTile(tile, map)
+        for index in tile_hotels:
+            if index == '3':
+                return tile
+
+    return None
+
+def IncreaseCompanyMajority(tiles, map, name):
+    for tile in tiles:
+        tile_hotels = CheckTile(tile, map)
+        for hotel in tile_hotels:
+             if hotel != '1':
+                if hotel != '3':
+                    if hotel != '4':
+                        if hotel != '5':
+                            if hotel != None:
+                                for owner in hotel.first_majority_owners:
+                                    if owner.num_shares == name:
+                                        return tile
+    return None
+
+def IncreaseCompanyOwner(tiles, map, name):
+    for tile in tiles:
+        tile_hotels = CheckTile(tile, map)
+        for hotel in tile_hotels:
+             if hotel != '1':
+                if hotel != '3':
+                    if hotel != '4':
+                        if hotel != '5':
+                            if hotel != None:
+                                for owner in hotel.owners:
+                                    if owner.num_shares == name:
+                                        return tile
+    return None
+
+def DontIncreaseAnother(tiles, map, name):
+    for tile in tiles:
+        tile_hotels = CheckTile(tile, map)
+        unique_hotels = []
+        for hotel in tile_hotels:
+            if hotel != '1':
+                if hotel != '3':
+                    if hotel != '4':
+                        if hotel != '5':
+                            if hotel != None:
+                                if hotel not in unique_hotels:
+                                    unique_hotels.append(hotel)
+        if len(unique_hotels) == 0:
+            return tile
     return None
 
 def random_element(list):
@@ -102,6 +152,15 @@ def SelectTile(tiles, map, name):
     if tile != None:
         return tile
     tile = CreateChain(tiles, map)
+    if tile != None:
+        return tile
+    tile = IncreaseCompanyMajority(tiles, map, name)
+    if tile != None:
+        return tile
+    tile = IncreaseCompanyOwner(tiles, map, name)
+    if tile != None:
+        return tile
+    tile = DontIncreaseAnother(tiles, map, name)
     if tile != None:
         return tile
     return random_element(tiles)
@@ -139,15 +198,14 @@ class MyPlayerBrain(object):
 
     def QuerySpecialPowersBeforeTurn(self, map, me, hotelChains, players):
         print "in QuerySpecialPowersBeforeTurn -----------------------------"
-        if rand.randint(0, 29) == 1:
-            return SpecialPowers.DRAW_5_TILES
+        return SpecialPowers.DRAW_5_TILES
         if rand.randint(0, 29) == 1:
             return SpecialPowers.PLACE_4_TILES
         return SpecialPowers.NONE
 
     def QueryTileOnly(self, map, me, hotelChains, players):
         print "in QueryTileOnly--------------------------------"
-        tile = random_element(me.tiles)
+        tile = SelectTile(me.tiles, map, me.guid)
         createdHotel = next((hotel for hotel in hotelChains if not hotel.is_active), None)
         mergeSurvivor = next((hotel for hotel in hotelChains if hotel.is_active), None)
         return PlayerPlayTile(tile, createdHotel, mergeSurvivor)
@@ -180,7 +238,12 @@ class MyPlayerBrain(object):
     def QueryMergeStock(self, map, me, hotelChains, players, survivor, defunct):
         print "in QueryMergeStock----------------------------------------"
         myStock = next((stock for stock in me.stock if stock.chain == defunct.name), None)
-        return PlayerMerge(myStock.num_shares / 3, myStock.num_shares / 3, (myStock.num_shares + 2) / 3)
+        if defunct.stock_price * 2 < survivor.stock_price:
+            if myStock.num_shares % 2 == 1:
+                return PlayerMerge(1, 0, myStock.num_shares - 1)    
+            else:
+                return PlayerMerge(0, 0, myStock.num_shares)
+        return PlayerMerge(myStock.num_shares, 0, 0)
 
 
 

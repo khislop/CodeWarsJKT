@@ -6,16 +6,79 @@ NAME = "JKT"
 SCHOOL = "Colorado School of Mines"
 
 
+
+def CheckTile(tile, map):
+    # print map.height
+    # print map.width
+    # print tile.x
+    # print tile.y
+    # print map.tiles[0][0]
+    
+    left = right = down = up = None
+    if tile.x - 1 >= 0:
+        left = map.tiles[tile.x - 1][tile.y].hotel
+    if tile.y - 1 >= 0:
+        down = map.tiles[tile.x][tile.y - 1].hotel
+    if tile.x + 1 < map.width:
+        right = map.tiles[tile.x + 1][tile.y].hotel
+    if tile.y + 1 < map.height:
+        up = map.tiles[tile.x][tile.y + 1].hotel
+    return [left,right,down,up]
+
+def MergeOwn(tiles, map, name):
+    #print "OUR GUID =====================   "
+    #print name
+    for tile in tiles:
+        tile_hotels = CheckTile(tile, map)
+        unique_hotels = []
+        count = 0
+        for hotel in tile_hotels:
+            if hotel != None:
+                if hotel not in unique_hotels:
+                    unique_hotels.append(hotel)
+        for hotel in unique_hotels:
+            #print "OWNER BELOW---------------------------------"
+            #print hotel.name
+            for owner in hotel.owners:
+                if name is owner.num_shares:
+                    count =  count + 1
+        if count >= 2:
+            return tile
+
+    return None
+
+def MergeBigger(tiles, map, name):
+    for tile in tiles:
+        tile_hotels = CheckTile(tile, map)
+        unique_hotels = []
+        for hotel in tile_hotels:
+            if hotel != None:
+                if hotel not in unique_hotels:
+                    unique_hotels.append(hotel)
+        for hotel in unique_hotels:
+            for owner in hotel.owners:
+                if name is owner.num_shares:
+        
+
+    return None
+
 def random_element(list):
     if len(list) < 1:
         print "random element from empty list? returning None..."
         return None
     return list[rand.randint(0, len(list) - 1)]
 
-def SelectTile(tiles):
-    for tile in tiles:
-        print tile
+def SelectTile(tiles, map, name):
+    tile = MergeOwn(tiles, map, name)
+    if tile != None:
+        return tile
+    tile = MergeBigger(tiles, map, name)
     return random_element(tiles)
+
+
+
+
+
 
 
 class MyPlayerBrain(object):
@@ -63,7 +126,7 @@ class MyPlayerBrain(object):
         print "in QueryTileAndPurchase--------------------------------"
         #print map
         inactive = next((hotel for hotel in hotelChains if not hotel.is_active), None)
-        turn = PlayerTurn(tile=SelectTile(me.tiles), created_hotel=inactive, merge_survivor=inactive)
+        turn = PlayerTurn(tile=SelectTile(me.tiles, map, me.guid), created_hotel=inactive, merge_survivor=inactive)
         turn.Buy.append(lib.HotelStock(random_element(hotelChains), rand.randint(1, 3)))
         turn.Buy.append(lib.HotelStock(random_element(hotelChains), rand.randint(1, 3)))
 

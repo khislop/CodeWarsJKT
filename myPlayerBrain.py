@@ -2,8 +2,8 @@ import random as rand
 import api.units as lib
 from api.units import SpecialPowers
 
-NAME = "Anders Hejlsberg"
-SCHOOL = "Windward U."
+NAME = "JKT"
+SCHOOL = "Colorado School of Mines"
 
 
 def random_element(list):

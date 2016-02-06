@@ -12,6 +12,11 @@ def random_element(list):
         return None
     return list[rand.randint(0, len(list) - 1)]
 
+def SelectTile(tiles):
+    for tile in tiles:
+        print tile
+    return random_element(tiles)
+
 
 class MyPlayerBrain(object):
     """The Python AI class."""
@@ -58,7 +63,7 @@ class MyPlayerBrain(object):
         print "in QueryTileAndPurchase--------------------------------"
         #print map
         inactive = next((hotel for hotel in hotelChains if not hotel.is_active), None)
-        turn = PlayerTurn(tile=random_element(me.tiles), created_hotel=inactive, merge_survivor=inactive)
+        turn = PlayerTurn(tile=SelectTile(me.tiles), created_hotel=inactive, merge_survivor=inactive)
         turn.Buy.append(lib.HotelStock(random_element(hotelChains), rand.randint(1, 3)))
         turn.Buy.append(lib.HotelStock(random_element(hotelChains), rand.randint(1, 3)))
 
@@ -82,6 +87,8 @@ class MyPlayerBrain(object):
         print "in QueryMergeStock----------------------------------------"
         myStock = next((stock for stock in me.stock if stock.chain == defunct.name), None)
         return PlayerMerge(myStock.num_shares / 3, myStock.num_shares / 3, (myStock.num_shares + 2) / 3)
+
+
 
 
 class PlayerMerge(object):

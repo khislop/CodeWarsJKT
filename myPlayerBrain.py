@@ -61,6 +61,43 @@ def MergeOwn(tiles, map, name):
 
     return None
 
+def MergeAny(map):
+    for index_row, row in enumerate(map.tiles):
+        for index_col, col in enumerate(row):
+            if col.type == "1":
+                unique_hotels = []
+                max_hotel = None
+                if index_row - 1 >= 0:
+                    if map.tiles[index_row - 1][index_col].type == '2':
+                        if map.tiles[index_row - 1][index_col].hotel not in unique_hotels:
+                            unique_hotels.append(map.tiles[index_row - 1][index_col].hotel)
+                if index_row + 1 < map.width:
+                    if map.tiles[index_row + 1][index_col].type == '2':
+                        if map.tiles[index_row + 1][index_col].hotel not in unique_hotels:
+                            unique_hotels.append(map.tiles[index_row + 1][index_col].hotel)
+                if index_col + 1 < map.height:
+                    if map.tiles[index_row][index_col + 1].type == '2':
+                        if map.tiles[index_row][index_col + 1].hotel not in unique_hotels:
+                            unique_hotels.append(map.tiles[index_row][index_col + 1].hotel)
+                if index_col - 1 >= 0:
+                    if map.tiles[index_row][index_col - 1].type == '2':
+                        if map.tiles[index_row][index_col - 1].hotel not in unique_hotels:
+                            unique_hotels.append(map.tiles[index_row][index_col - 1].hotel)
+        if len(unique_hotels) > 1:
+            for hotel in unique_hotels:
+                if max_hotel == None:
+                    max_hotel = hotel
+                if hotel.num_tiles >= max_hotel.num_tiles:
+                    max_hotel = hotel
+            return max_hotel
+    return None
+
+
+
+
+
+
+
 def MergeBigger(tiles, map, name):
     for tile in tiles:
         tile_hotels = CheckTile(tile, map)
@@ -216,6 +253,11 @@ class MyPlayerBrain(object):
         #print map
         inactive = next((hotel for hotel in hotelChains if not hotel.is_active), None)
         turn = PlayerTurn(tile=SelectTile(me.tiles, map, me.guid), created_hotel=inactive, merge_survivor=inactive)
+        
+        chain = MergeAny(map)
+        if chain != None:
+            turn.Buy.append(lib.HotelStock(chain, 3))
+
         turn.Buy.append(lib.HotelStock(random_element(hotelChains), rand.randint(1, 3)))
         turn.Buy.append(lib.HotelStock(random_element(hotelChains), rand.randint(1, 3)))
 

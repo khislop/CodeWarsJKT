@@ -93,6 +93,23 @@ def MergeAny(map):
     return None
 
 
+def BecomeMajority(hotelChains, me):
+    for hotel in hotelChains:
+        diff = 0
+        if hotel.is_active == False:
+            for owner in hotel.first_majority_owners:
+                diff = int(owner.owner)
+            ourstock = 0
+            for chain in me.stock:
+                if chain.chain == hotel.name:
+                    ourstock = chain.num_shares
+            diff = diff - ourstock
+            if diff <= 3:
+                return [hotel, diff]
+    return None
+
+    
+
 
 
 
@@ -235,9 +252,9 @@ class MyPlayerBrain(object):
 
     def QuerySpecialPowersBeforeTurn(self, map, me, hotelChains, players):
         print "in QuerySpecialPowersBeforeTurn -----------------------------"
-        return SpecialPowers.DRAW_5_TILES
-        if rand.randint(0, 29) == 1:
+        if rand.randint(0, 10) == 1:
             return SpecialPowers.PLACE_4_TILES
+        return SpecialPowers.DRAW_5_TILES
         return SpecialPowers.NONE
 
     def QueryTileOnly(self, map, me, hotelChains, players):
@@ -258,10 +275,14 @@ class MyPlayerBrain(object):
         if chain != None:
             turn.Buy.append(lib.HotelStock(chain, 3))
 
+        results = BecomeMajority(hotelChains, me)
+        if results != None:
+            turn.Buy.append(lib.HotelStock(results[0], results[1]))
+
         turn.Buy.append(lib.HotelStock(random_element(hotelChains), rand.randint(1, 3)))
         turn.Buy.append(lib.HotelStock(random_element(hotelChains), rand.randint(1, 3)))
 
-        if rand.randint(0, 20) is not 1:
+        if rand.randint(0, 5) is not 1:
             return turn
         temp_rand = rand.randint(0, 2)
         if temp_rand is 0:
